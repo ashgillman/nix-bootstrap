@@ -82,7 +82,7 @@ popd
 rm -rf gcc-objs || true
 mkdir -p gcc-objs
 pushd gcc-objs
-$PWD/../gcc-4.9.2/configure --prefix=$MYTMP --enable-languages=c,c++ 1>/dev/null 2>/dev/null
+$PWD/../gcc-4.9.2/configure --prefix=$MYTMP --enable-languages=c,c++ --disable-multilib --disable-bootstrap 1>/dev/null 2>/dev/null
 mmi
 popd
 
