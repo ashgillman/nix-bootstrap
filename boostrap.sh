@@ -103,14 +103,20 @@ PKG_CONFIG_PATH=$MYTMP/lib/pkgconfig ./configure --prefix=$MYTMP --with-store-di
 mmi
 popd
 
-git clone https://github.com/NixOS/nixpkgs.git ~/nixpkgs
-pushd ~/nixpkgs
-git checkout release-17.03
-popd
-ln -s $NIX_PREFIX/nix/var/nix/profiles/default ~/.nix-profile
+if [ ! -d ~/nixpkgs ]; then
+	git clone https://github.com/NixOS/nixpkgs.git ~/nixpkgs
+	pushd ~/nixpkgs
+	git checkout release-17.03
+	popd
+fi
 
-mkdir ~/.nixpkgs || true
-cat <<EOF > ~/.nixpkgs/config.nix
+if [ ! -L ~/.nix-profile ]; then
+	ln -s $NIX_PREFIX/nix/var/nix/profiles/default ~/.nix-profile
+fi
+
+if [ ! -d ~/.nixpkgs ]; then
+	mkdir ~/.nixpkgs || true
+	cat <<EOF > ~/.nixpkgs/config.nix
 pkgs:
 {
   packageOverrides = pkgs: {
