@@ -98,6 +98,7 @@ export PERL5OPT="-I$MYTMP/lib64/perl5"
 pushd nix-1.11.7
 export LDFLAGS="-L$MYTMP/lib -lpthread $LDFLAGS"
 export GLOBAL_LDFLAGS="-lpthread"
+sed -i "s,-llzma,-L$MYTMP/lib -llzma," src/libutil/local.mk
 PKG_CONFIG_PATH=$MYTMP/lib/pkgconfig ./configure --prefix=$MYTMP --with-store-dir=$NIX_PREFIX/nix/store --localstatedir=$NIX_PREFIX/nix/var
 mmi
 popd
