@@ -32,7 +32,7 @@ wget https://nixos.org/releases/nix/nix-1.11.7/nix-1.11.7.tar.xz
 wget https://cpan.metacpan.org/authors/id/T/TI/TIMB/DBI-1.636.tar.gz --no-check-certificate
 wget https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/DBD-SQLite-1.54.tar.gz --no-check-certificate
 wget https://cpan.metacpan.org/authors/id/S/SZ/SZBALINT/WWW-Curl-4.17.tar.gz --no-check-certificate
-wget http://tukaani.org/xz/xz-5.2.3.tar.gz
+wget http://tukaani.org/xz/xz-5.2.3.tar.gz --no-check-certificate
 wget https://ftp.gnu.org/gnu/m4/m4-1.4.18.tar.xz
 wget https://ftp.gnu.org/gnu/bison/bison-3.0.4.tar.xz
 wget https://github.com/westes/flex/releases/download/v2.6.3/flex-2.6.3.tar.gz -O flex-2.6.3.tar.gz
