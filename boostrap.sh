@@ -1,4 +1,5 @@
 #!/bin/sh
+# vim: set noexpandtab:
 
 set -e
 set -x
