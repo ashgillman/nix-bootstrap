@@ -127,13 +127,14 @@ pkgs:
   };
 }
 EOF
+fi
 
 if hostname | grep bnl\.gov; then
 	# http://pax.grsecurity.net is blocked by site firewall 
 	nix-prefetch-url http://source.ipfire.org/source-2.x/paxctl-0.9.tar.gz
 fi
 # use nix to bootstrap stdenv and install proper nix
-nix-env -Q -j $NUM_THREADS -i nix -f ~/nixpkgs
+nix-env -Q -j $NUM_THREADS -iA nix -f ~/nixpkgs
 
 rm -rf $MYTMP
 set +x
