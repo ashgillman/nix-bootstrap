@@ -36,7 +36,6 @@ wget http://tukaani.org/xz/xz-5.2.3.tar.gz --no-check-certificate
 wget https://ftp.gnu.org/gnu/m4/m4-1.4.18.tar.xz
 wget https://ftp.gnu.org/gnu/bison/bison-3.0.4.tar.xz
 wget https://github.com/westes/flex/releases/download/v2.6.3/flex-2.6.3.tar.gz -O flex-2.6.3.tar.gz
-wget https://ftp.gnu.org/gnu/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2
 
 tar Jxf nix-1.11.7.tar.xz
 tar zxf DBI-1.636.tar.gz
@@ -46,7 +45,6 @@ tar zxf xz-5.2.3.tar.gz
 tar Jxf m4-1.4.18.tar.xz
 tar Jxf bison-3.0.4.tar.xz
 tar zxf flex-2.6.3.tar.gz
-tar jxf gcc-4.9.2.tar.bz2
 
 pushd WWW-Curl-4.17
 perl Makefile.PL PREFIX=$MYTMP 1>/dev/null 2>/dev/null
@@ -76,16 +74,25 @@ pushd flex-2.6.3
 ./configure --prefix=$MYTMP 1>/dev/null 2>/dev/null
 mmi
 popd
-# TODO add detection for when gcc is new enough (gcc49 is a minimal requirement)
-pushd gcc-4.9.2
-./contrib/download_prerequisites
-popd
-rm -rf gcc-objs || true
-mkdir -p gcc-objs
-pushd gcc-objs
-$PWD/../gcc-4.9.2/configure --prefix=$MYTMP --enable-languages=c,c++ --disable-multilib --disable-bootstrap 1>/dev/null 2>/dev/null
-mmi
-popd
+
+AFS_GCC=/afs/rhic/rcassoft/x8664_sl6/gcc492
+if [ -d "${AFS_GCC}" ]; then
+	export PATH=${AFS_GCC}/bin:$PATH
+	export LD_LIBRARY_PATH=${AFS_GCC}/lib64:$LD_LIBRARY_PATH
+else
+	wget https://ftp.gnu.org/gnu/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2
+	tar jxf gcc-4.9.2.tar.bz2
+	# TODO add detection for when gcc is new enough (gcc49 is a minimal requirement)
+	pushd gcc-4.9.2
+	./contrib/download_prerequisites
+	popd
+	rm -rf gcc-objs || true
+	mkdir -p gcc-objs
+	pushd gcc-objs
+	$PWD/../gcc-4.9.2/configure --prefix=$MYTMP --enable-languages=c,c++ --disable-multilib --disable-bootstrap 1>/dev/null 2>/dev/null
+	mmi
+	popd
+fi
 
 export PERL5OPT="-I$MYTMP/lib64/perl5"
 pushd nix-1.11.7
