@@ -24,8 +24,8 @@ export PATH=$MYTMP/bin:$PATH
 export LD_LIBRARY_PATH=$MYTMP/lib64:$MYTMP/lib:$LD_LIBRARY_PATH
 
 function mmi () {
-	make -j $NUM_THREADS 1>/dev/null 2>/dev/null
-	make install 1>/dev/null 2>/dev/null
+	make -j $NUM_THREADS 1> /dev/null
+	make install 1> /dev/null
 }
 
 wget https://nixos.org/releases/nix/nix-1.11.7/nix-1.11.7.tar.xz
