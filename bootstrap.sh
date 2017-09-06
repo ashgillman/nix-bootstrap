@@ -133,6 +133,7 @@ if hostname | grep bnl\.gov; then
 	# http://pax.grsecurity.net is blocked by site firewall 
 	nix-prefetch-url http://source.ipfire.org/source-2.x/paxctl-0.9.tar.gz
 	nix-prefetch-url http://curl.askapache.com/download/curl-7.53.1.tar.bz2
+	nix-prefetch-url http://download.openpkg.org/components/cache/libsodium/libsodium-1.0.12.tar.gz
 fi
 # use nix to bootstrap stdenv and install proper nix
 nix-env -Q -j $NUM_THREADS -iA nix -f ~/nixpkgs
