@@ -5,16 +5,12 @@ set -e
 set -x
 
 # install path
-NIX_PREFIX=`readlink -f $HOME` # path to nix store must not contain symlinks
+NIX_PREFIX=`readlink -f $DATADIR` # path to nix store must not contain symlinks
 MYTMP=/tmp/nix-boot-`whoami`
 NUM_THREADS=4
 
 export PATH=/bin:/usr/bin:/usr/sbin:/sbin
 export LD_LIBRARY_PATH=""
-
-if hostname | grep bnl\.gov; then
-	export ftp_proxy="ftpgateway.sec.bnl.local:3128"
-fi
 
 rm -rf $MYTMP
 mkdir $MYTMP
@@ -27,6 +23,27 @@ function mmi () {
 	make -j $NUM_THREADS 1> /dev/null
 	make install 1> /dev/null
 }
+
+AFS_GCC=/apps/gcc/4.9.3
+if [ -d "${AFS_GCC}" ]; then
+	export PATH=${AFS_GCC}/bin:$PATH
+	export LD_LIBRARY_PATH=${AFS_GCC}/lib64:${AFS_GCC}/lib:$LD_LIBRARY_PATH
+else
+	wget https://ftp.gnu.org/gnu/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2
+	tar jxf gcc-4.9.2.tar.bz2
+	# TODO add detection for when gcc is new enough (gcc49 is a minimal requirement)
+	pushd gcc-4.9.2
+	./contrib/download_prerequisites
+	popd
+	rm -rf gcc-objs || true
+	mkdir -p gcc-objs
+	pushd gcc-objs
+	$PWD/../gcc-4.9.2/configure --prefix=$MYTMP --enable-languages=c,c++ --disable-multilib --disable-bootstrap 1>/dev/null 2>/dev/null
+	mmi
+	popd
+fi
+export CC=gcc
+export CXX=g++
 
 wget https://nixos.org/releases/nix/nix-1.11.7/nix-1.11.7.tar.xz
 wget https://cpan.metacpan.org/authors/id/T/TI/TIMB/DBI-1.636.tar.gz --no-check-certificate
@@ -75,25 +92,6 @@ pushd flex-2.6.3
 mmi
 popd
 
-AFS_GCC=/afs/rhic/rcassoft/x8664_sl6/gcc492
-if [ -d "${AFS_GCC}" ]; then
-	export PATH=${AFS_GCC}/bin:$PATH
-	export LD_LIBRARY_PATH=${AFS_GCC}/lib64:$LD_LIBRARY_PATH
-else
-	wget https://ftp.gnu.org/gnu/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2
-	tar jxf gcc-4.9.2.tar.bz2
-	# TODO add detection for when gcc is new enough (gcc49 is a minimal requirement)
-	pushd gcc-4.9.2
-	./contrib/download_prerequisites
-	popd
-	rm -rf gcc-objs || true
-	mkdir -p gcc-objs
-	pushd gcc-objs
-	$PWD/../gcc-4.9.2/configure --prefix=$MYTMP --enable-languages=c,c++ --disable-multilib --disable-bootstrap 1>/dev/null 2>/dev/null
-	mmi
-	popd
-fi
-
 export PERL5OPT="-I$MYTMP/lib64/perl5"
 pushd nix-1.11.7
 export LDFLAGS="-L$MYTMP/lib -lpthread $LDFLAGS"
@@ -104,10 +102,10 @@ mmi
 popd
 
 if [ ! -d ~/nixpkgs ]; then
-	git clone https://github.com/NixOS/nixpkgs.git ~/nixpkgs
-	pushd ~/nixpkgs
-	git checkout release-17.03
-	popd
+	git clone -b mypkgs/master https://github.com/ashgillman/nixpkgs.git ~/nixpkgs
+	#pushd ~/nixpkgs
+	#git checkout release-17.03
+	#popd
 fi
 
 if [ ! -L ~/.nix-profile ]; then
@@ -129,14 +127,9 @@ pkgs:
 EOF
 fi
 
-if hostname | grep bnl\.gov; then
-	# http://pax.grsecurity.net is blocked by site firewall 
-	nix-prefetch-url http://source.ipfire.org/source-2.x/paxctl-0.9.tar.gz
-	nix-prefetch-url http://curl.askapache.com/download/curl-7.53.1.tar.bz2
-	nix-prefetch-url http://download.openpkg.org/components/cache/libsodium/libsodium-1.0.12.tar.gz
-fi
+
 # use nix to bootstrap stdenv and install proper nix
-nix-env -Q -j $NUM_THREADS -iA nix -f ~/nixpkgs
+nix-env -j 1 -iA nix -f ~/nixpkgs
 
 rm -rf $MYTMP
 set +x
@@ -149,7 +142,7 @@ cat <<EOF
 Add following to your shell rc file:
 
 export NIX_PATH=nixpkgs=\$HOME/nixpkgs
-source ~/.nix-profile/etc/profile.d/nix.sh
+#source ~/.nix-profile/etc/profile.d/nix.sh
 
 ============================================
 
